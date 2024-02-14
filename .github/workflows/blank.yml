@@ -16,6 +16,9 @@ jobs:
       - name: Install SSH client
         run: sudo apt-get install -y openssh-client
 
+      - name: Create SSH directory
+        run: mkdir -p ~/.ssh
+
       - name: Run SSH command
         run: |
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
@@ -24,4 +27,3 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           IP_ADDRESS: ${{ runner.ip }}
-          
