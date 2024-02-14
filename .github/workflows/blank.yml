@@ -14,7 +14,7 @@ jobs:
         id: hostname_ip
         run: |
           echo "::set-output name=hostname::$(hostname)"
-          echo "::set-output name=ip_address::$(curl -s ifconfig.me)"
+          echo "::set-output name=ip_address::$(hostname -I | cut -d' ' -f1)"
 
       - name: Save Hostname and IP
         run: |
