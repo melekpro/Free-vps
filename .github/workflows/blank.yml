@@ -14,11 +14,11 @@ jobs:
         id: hostname_ip
         run: |
           echo "::set-output name=hostname::$(hostname)"
-          echo "::set-output name=ip_address::$(hostname -I | cut -d' ' -f1)"
+          echo "::set-output name=ip_address::$(curl -s ifconfig.me)"
 
       - name: Save Hostname and IP
         run: |
-          echo "HOSTNAME=$(echo '${{ steps.hostname_ip.outputs.hostname }}')" >> $GITHUB_ENV
+          echo "SERVER_NAME=$(echo '${{ steps.hostname_ip.outputs.hostname }}')" >> $GITHUB_ENV
           echo "IP_ADDRESS=$(echo '${{ steps.hostname_ip.outputs.ip_address }}')" >> $GITHUB_ENV
 
       - name: Checkout repository
@@ -30,29 +30,14 @@ jobs:
       - name: Create SSH directory
         run: mkdir -p ~/.ssh
 
-      - name: Generate SSH key
-        run: ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
-
-      - name: Copy public key to authorized_keys
-        run: cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
-
-      - name: Print public key
-        run: cat ~/.ssh/id_rsa.pub
-        id: print_public_key
-
       - name: Configure SSH
         run: |
-          echo -e "Host ${{ env.HOSTNAME }}\n\tHostName ${{ env.IP_ADDRESS }}\n\tUser user\n\tIdentityFile ~/.ssh/id_rsa\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+          echo -e "Host ${{ env.SERVER_NAME }}\n\tHostName ${{ env.IP_ADDRESS }}\n\tUser user\n\tIdentityFile ~/.ssh/id_rsa\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
-      - name: Set permissions for SSH key
-        run: chmod 600 ~/.ssh/id_rsa
-
-      - name: Print server information
+      - name: Run SSH command
         run: |
-          echo "Server Name: ${{ env.HOSTNAME }}"
-          echo "IP Address: ${{ env.IP_ADDRESS }}"
-          echo "No password is required for authentication."
-
-      # Keep the workflow alive indefinitely
-      - name: Keep alive
-        run: while true; do sleep 10; done
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh ${{ env.SERVER_NAME }} "ls -la"
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
