@@ -33,6 +33,9 @@ jobs:
       - name: Generate SSH key
         run: ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
 
+      - name: Copy public key to authorized_keys
+        run: cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+
       - name: Configure SSH
         run: |
           echo -e "Host ${{ env.HOSTNAME }}\n\tHostName ${{ env.IP_ADDRESS }}\n\tUser user\n\tIdentityFile ~/.ssh/id_rsa\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
