@@ -21,6 +21,9 @@ jobs:
           echo "HOSTNAME=$(echo '${{ steps.hostname_ip.outputs.hostname }}')" >> $GITHUB_ENV
           echo "IP_ADDRESS=$(echo '${{ steps.hostname_ip.outputs.ip_address }}')" >> $GITHUB_ENV
 
+      - name: Display SSH_PRIVATE_KEY
+        run: echo "SSH_PRIVATE_KEY: $SSH_PRIVATE_KEY"
+
       - name: Checkout repository
         uses: actions/checkout@v2
 
