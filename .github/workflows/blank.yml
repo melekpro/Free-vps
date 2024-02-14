@@ -9,10 +9,13 @@ jobs:
   execute_ssh_command:
     runs-on: ubuntu-latest
 
+    env:
+      SERVER_NAME: ${{ env.SERVER_NAME }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
     steps:
       - name: Get Hostname
-        id: get_hostname
-        run: echo "::set-env name=SERVER_NAME::$(hostname)"
+        run: echo "Hostname: $(hostname)"
       
       - name: Get OS Info
         run: uname -a
@@ -34,12 +37,10 @@ jobs:
 
       - name: Configure SSH
         run: |
-          echo -e "Host ${{ steps.get_hostname.outputs.SERVER_NAME }}\n\tHostName ${{ github.runner.ip }}\n\tUser user\n\tIdentityFile ~/.ssh/id_rsa\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+          echo -e "Host $SERVER_NAME\n\tHostName ${{ runner.ip }}\n\tUser user\n\tIdentityFile ~/.ssh/id_rsa\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
       - name: Run SSH command
         run: |
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh ${{ steps.get_hostname.outputs.SERVER_NAME }} "ls -la"
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh $SERVER_NAME "ls -la"
