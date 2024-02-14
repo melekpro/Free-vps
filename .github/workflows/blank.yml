@@ -34,10 +34,12 @@ jobs:
         run: |
           echo -e "Host ${{ env.HOSTNAME }}\n\tHostName ${{ env.IP_ADDRESS }}\n\tUser user\n\tIdentityFile ~/.ssh/id_rsa\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
+      - name: Set permissions for SSH key
+        run: chmod 600 ~/.ssh/id_rsa
+
       - name: Run SSH command
         run: |
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
           ssh ${{ env.HOSTNAME }} "ls -la"
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
