@@ -10,6 +10,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Get Hostname
+        run: hostname
+      - name: Get OS Info
+        run: uname -a
+      - name: Get CPU Info
+        run: cat /proc/cpuinfo
+      - name: Get Memory Info
+        run: free -h
+      - name: Get Storage Info
+        run: df -h
+
       - name: Checkout repository
         uses: actions/checkout@v2
 
