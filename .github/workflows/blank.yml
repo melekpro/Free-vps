@@ -9,10 +9,6 @@ jobs:
   execute_ssh_command:
     runs-on: ubuntu-latest
 
-    env:
-      SERVER_NAME: ${{ env.SERVER_NAME }}
-      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
     steps:
       - name: Get Hostname
         run: echo "Hostname: $(hostname)"
@@ -37,10 +33,10 @@ jobs:
 
       - name: Configure SSH
         run: |
-          echo -e "Host $SERVER_NAME\n\tHostName ${{ runner.ip }}\n\tUser user\n\tIdentityFile ~/.ssh/id_rsa\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+          echo -e "Host ${{ env.SERVER_NAME }}\n\tHostName ${{ runner.ip }}\n\tUser user\n\tIdentityFile ~/.ssh/id_rsa\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
       - name: Run SSH command
         run: |
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh $SERVER_NAME "ls -la"
+          ssh ${{ env.SERVER_NAME }} "ls -la"
