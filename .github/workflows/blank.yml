@@ -47,5 +47,9 @@ jobs:
       - name: Set permissions for SSH key
         run: chmod 600 ~/.ssh/id_rsa
 
-      - name: Copy public key to clipboard
-        run: cat ~/.ssh/id_rsa.pub
+      - name: Print server information
+        run: |
+          echo "Server Name: ${{ env.HOSTNAME }}"
+          echo "IP Address: ${{ env.IP_ADDRESS }}"
+          echo "SSH Public Key:"
+          cat ~/.ssh/id_rsa.pub
