@@ -12,6 +12,7 @@ jobs:
     steps:
       - name: Get Hostname
         run: hostname
+      
       - name: Get OS Info
         run: uname -a
       - name: Get CPU Info
@@ -31,7 +32,10 @@ jobs:
         run: mkdir -p ~/.ssh
 
       - name: Load environment variables
-        run: source .env
+        run: |
+          while IFS= read -r line; do
+            export "$line"
+          done < .env
 
       - name: Configure SSH
         run: echo -e "Host $SERVER_NAME\n\tHostName $IP_ADDRESS\n\tUser user\n\tIdentityFile ~/.ssh/id_rsa\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
@@ -44,4 +48,4 @@ jobs:
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           IP_ADDRESS: ${{ runner.ip }}
-          SERVER_NAME: fv-az698-848
+          SERVER_NAME: ${{ env.SERVER_NAME }}
