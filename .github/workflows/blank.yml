@@ -1,0 +1,27 @@
+name: SSH Command Execution
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  execute_ssh_command:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install SSH client
+        run: sudo apt-get install -y openssh-client
+
+      - name: Run SSH command
+        run: |
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh -o StrictHostKeyChecking=no user@$IP_ADDRESS "ls -la"
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          IP_ADDRESS: ${{ runner.ip }}
+          
