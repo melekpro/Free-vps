@@ -31,14 +31,13 @@ jobs:
       - name: Create SSH directory
         run: mkdir -p ~/.ssh
 
-      - name: Load environment variables
-        run: |
-          while IFS= read -r line; do
-            export "$line"
-          done < .env
+      - name: Get public IP
+        id: get_ip
+        run: echo "::set-output name=ip_address::$(curl -s ifconfig.me)"
 
       - name: Configure SSH
-        run: echo -e "Host $SERVER_NAME\n\tHostName $IP_ADDRESS\n\tUser user\n\tIdentityFile ~/.ssh/id_rsa\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+        run: |
+          echo -e "Host $SERVER_NAME\n\tHostName ${{ steps.get_ip.outputs.ip_address }}\n\tUser user\n\tIdentityFile ~/.ssh/id_rsa\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
       - name: Run SSH command
         run: |
@@ -47,5 +46,4 @@ jobs:
           ssh $SERVER_NAME "ls -la"
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          IP_ADDRESS: ${{ runner.ip }}
           SERVER_NAME: ${{ env.SERVER_NAME }}
