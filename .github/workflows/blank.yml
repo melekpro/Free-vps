@@ -9,6 +9,10 @@ jobs:
   execute_ssh_command:
     runs-on: ubuntu-latest
 
+    env:
+      SERVER_NAME: "fv-az698-848"
+      IP_ADDRESS: ${{ runner.ip }}
+
     steps:
       - name: Get Hostname
         run: hostname
@@ -31,12 +35,6 @@ jobs:
       - name: Create SSH directory
         run: mkdir -p ~/.ssh
 
-      - name: Load environment variables
-        run: |
-          while IFS= read -r line; do
-            export "$line"
-          done < .env
-
       - name: Configure SSH
         run: echo -e "Host $SERVER_NAME\n\tHostName $IP_ADDRESS\n\tUser user\n\tIdentityFile ~/.ssh/id_rsa\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
@@ -47,5 +45,3 @@ jobs:
           ssh $SERVER_NAME "ls -la"
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          IP_ADDRESS: ${{ runner.ip }}
-          SERVER_NAME: ${{ env.SERVER_NAME }}
