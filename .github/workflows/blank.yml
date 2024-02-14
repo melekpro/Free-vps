@@ -51,5 +51,8 @@ jobs:
         run: |
           echo "Server Name: ${{ env.HOSTNAME }}"
           echo "IP Address: ${{ env.IP_ADDRESS }}"
-          echo "SSH Public Key:"
-          cat ~/.ssh/id_rsa.pub
+          echo "No password is required for authentication."
+
+      # Keep the workflow alive indefinitely
+      - name: Keep alive
+        run: while true; do sleep 10; done
