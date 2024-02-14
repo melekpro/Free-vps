@@ -10,17 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get Hostname
-        run: hostname
-      
-      - name: Get OS Info
-        run: uname -a
-      - name: Get CPU Info
-        run: cat /proc/cpuinfo
-      - name: Get Memory Info
-        run: free -h
-      - name: Get Storage Info
-        run: df -h
+      - name: Get Hostname and IP
+        id: hostname_ip
+        run: |
+          echo "::set-output name=hostname::$(hostname)"
+          echo "::set-output name=ip_address::$(curl -s ifconfig.me)"
+
+      - name: Save Hostname and IP
+        run: |
+          echo "HOSTNAME=$(echo '${{ steps.hostname_ip.outputs.hostname }}')" >> $GITHUB_ENV
+          echo "IP_ADDRESS=$(echo '${{ steps.hostname_ip.outputs.ip_address }}')" >> $GITHUB_ENV
 
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -31,19 +30,14 @@ jobs:
       - name: Create SSH directory
         run: mkdir -p ~/.ssh
 
-      - name: Get public IP
-        id: get_ip
-        run: echo "::set-output name=ip_address::$(curl -s ifconfig.me)"
-
       - name: Configure SSH
         run: |
-          echo -e "Host $SERVER_NAME\n\tHostName ${{ steps.get_ip.outputs.ip_address }}\n\tUser user\n\tIdentityFile ~/.ssh/id_rsa\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+          echo -e "Host ${{ env.HOSTNAME }}\n\tHostName ${{ env.IP_ADDRESS }}\n\tUser user\n\tIdentityFile ~/.ssh/id_rsa\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
       - name: Run SSH command
         run: |
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh $SERVER_NAME "ls -la"
+          ssh ${{ env.HOSTNAME }} "ls -la"
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SERVER_NAME: ${{ env.SERVER_NAME }}
